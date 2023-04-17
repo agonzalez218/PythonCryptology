@@ -1,0 +1,14 @@
+# Ignore everything
+*
+
+# But not these files...
+!.gitignore
+!main.py
+!venv
+!.idea
+!*/
+!misc.xml
+!modules.xml
+!profiles_settings.xml
+!Project_Default.xml
+!vcs.xml
