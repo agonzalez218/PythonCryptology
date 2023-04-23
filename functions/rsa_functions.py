@@ -31,9 +31,11 @@ def generate_rsa_key_pair(root, password, priv_key_filename, pub_key_filename):
     except FileNotFoundError:
         messagebox.showerror("File Not Found",
                              "ERROR: Filename not found in current directory...")
+        return -1
 
     root.update()
     messagebox.showinfo("Reset Successful!", "The public and private keys have been reset!")
+    return 1
 
 
 def decrypt_rsa(root, private_key, encrypted_name, decrypted_name):
@@ -69,18 +71,20 @@ def decrypt_rsa(root, private_key, encrypted_name, decrypted_name):
         root.update()
         messagebox.showerror("File Not Found",
                              "ERROR: Encrypted and/or Decrypted Filename not found in current directory...")
+        return -1
 
     # If decryption failed, return error
     except ValueError:
         root.update()
         messagebox.showerror("Decryption Error",
                              "Decryption of selected file FAILED, please ensure you are using correct keys...")
+        return -1
 
 
 def encrypt_rsa(root, public_key, message, encrypted_name):
     try:
         if public_key == -1:
-            return
+            return -1
 
         encrypted = public_key.encrypt(
             message,
@@ -109,10 +113,10 @@ def encrypt_rsa(root, public_key, message, encrypted_name):
                              "message filename...")
 
 
-def generate_pub_key(root, priv_key, pub_key_filename):
+def generate_rsa_pub_key(root, priv_key, pub_key_filename):
     # Get private key, if not found return error
     if priv_key == -1:
-        return
+        return -1
 
     public_key = priv_key.public_key()
     pub_pem = public_key.public_bytes(
@@ -128,16 +132,16 @@ def generate_pub_key(root, priv_key, pub_key_filename):
         root.update()
         messagebox.showerror("Public Key Error",
                              "ERROR: Public Key name not specified...")
-        return
+        return -1
 
 
-def get_pub_key(root, pub_key_filename):
+def get_rsa_pub_key(root, pub_key_filename):
     # If user did not specify public key filename return error
     if len(pub_key_filename) < 1:
         root.update()
         messagebox.showerror("Public Key Error",
                              "ERROR: Public Key name not specified...")
-        return
+        return -1
     try:
         # Get public key from file
         with open(pub_key_filename, "rb") as key_file:
@@ -151,4 +155,34 @@ def get_pub_key(root, pub_key_filename):
         root.update()
         messagebox.showwarning("Missing Public Key", "No public key provided, generate one or move to current file "
                                                      "directory...")
+        return -1
+
+
+def get_rsa_priv_key(root, priv_key_filename, password):
+    # If user did not specify private key filename return error
+    if len(priv_key_filename) < 1:
+        root.update()
+        messagebox.showerror("Private Key Error",
+                             "ERROR: Private Key name not specified...")
+    try:
+        # Get private key from file
+        with open(priv_key_filename, "rb") as key_file:
+            private_key = serialization.load_pem_private_key(
+                key_file.read(),
+                password=password,
+                backend=default_backend()
+            )
+        return private_key
+    # If filename specified by user but not found return error
+    except FileNotFoundError:
+        root.update()
+        messagebox.showerror("Missing Private Key",
+                             "WARNING: Without private key, previous encrypted messages will not "
+                             "be able to be decrypted...")
+        return -1
+    # If filename specified by user is correct but password is not return error
+    except ValueError:
+        root.update()
+        messagebox.showerror("Private Key Error",
+                             "Ensure correct password for private key is used...")
         return -1

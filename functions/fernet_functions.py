@@ -30,7 +30,7 @@ def generate_fern_key(root, v, password, priv_key_filename):
     with open(priv_key_filename, "wb") as file:
         file.write(key)
     messagebox.showinfo("Fernet Key Success",
-                         "Fernet Key was generated and placed in " + priv_key_filename)
+                        "Fernet Key was generated and placed in " + priv_key_filename)
 
 
 def encrypt_fernet(root, priv_key_filename, encrypted_name, message):
