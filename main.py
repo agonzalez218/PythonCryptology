@@ -1,9 +1,12 @@
+from tkinter.simpledialog import askstring
+
 from functions.fernet_functions import *
 from functions.rsa_functions import *
 from functions.aes_functions import *
 
 
-def generate_first_key():
+# Generate secondary key, public or IV
+def generate_secondary_key():
     # Generate new RSA pub key
     if v.get() == 1:
         generate_rsa_pub_key(root, get_rsa_priv_key(root, userPrivKey.get(), get_pwd()), userPublicKey.get())
@@ -13,6 +16,7 @@ def generate_first_key():
         generate_aes_iv(root, userPublicKey.get())
 
 
+# Reset key pairs or, if only one key needed, primary key
 def reset_keys():
     # Generate RSA keys if using RSA
     if v.get() == 1:
@@ -37,6 +41,7 @@ def reset_keys():
         generate_aes_keys(root, userPrivKey.get(), userPublicKey.get())
 
 
+# Encrypt message based on encryption method selected
 def encrypt_message():
     # Get message, if none found return error
     message = get_message()
@@ -67,13 +72,16 @@ def encrypt_message():
 
     # If AES Selected:
     if v.get() == 6:
-        encrypt_aes(root, get_aes_key(root, userPrivKey.get()), get_aes_iv(root, userPublicKey.get()), message, userEncryptedName.get())
+        encrypt_aes(root, get_aes_key(root, userPrivKey.get()), get_aes_iv(root, userPublicKey.get()), message,
+                    userEncryptedName.get())
 
 
+# Decrypt message based on encryption method selected
 def decrypt_message():
     # If RSA selected:
     if v.get() == 1:
-        decrypt_rsa(root, get_rsa_priv_key(root, userPrivKey.get(), get_pwd()), userEncryptedName.get(), userDecryptedName.get())
+        decrypt_rsa(root, get_rsa_priv_key(root, userPrivKey.get(), get_pwd()), userEncryptedName.get(),
+                    userDecryptedName.get())
         return
 
     # If Fernet selected:
@@ -86,18 +94,22 @@ def decrypt_message():
 
     # If AESGCM selected:
     if v.get() == 4:
-        decrypt_aesgcm(root, get_aesgcm_key(root, userPrivKey.get()), userEncryptedName.get(), userDecryptedName.get(), get_pwd())
+        decrypt_aesgcm(root, get_aesgcm_key(root, userPrivKey.get()), userEncryptedName.get(), userDecryptedName.get(),
+                       get_pwd())
 
     # If AESCCM selected:
     if v.get() == 5:
-        decrypt_aesccm(root, get_aesccm_key(root, userPrivKey.get()), userEncryptedName.get(), userDecryptedName.get(), get_pwd())
+        decrypt_aesccm(root, get_aesccm_key(root, userPrivKey.get()), userEncryptedName.get(), userDecryptedName.get(),
+                       get_pwd())
 
     # If AES Selected:
     if v.get() == 6:
-        decrypt_aes(root, get_aes_key(root, userPrivKey.get()), get_aes_iv(root, userPublicKey.get()), userEncryptedName.get(), userDecryptedName.get())
+        decrypt_aes(root, get_aes_key(root, userPrivKey.get()), get_aes_iv(root, userPublicKey.get()),
+                    userEncryptedName.get(), userDecryptedName.get())
         return
 
 
+# Get password, or aad, from textbox or generate new one
 def get_pwd():
     # If user specified password, use that, otherwise generate random string
     if len(user_password_string.get()) > 0:
@@ -113,6 +125,42 @@ def get_pwd():
     return new_password
 
 
+# Save password to file
+def save_pwd():
+    try:
+        filename = askstring('Password Filename', 'What would you like to save password as?')
+        with open(filename, "wb") as file:
+            file.write(bytes(userPassword.get(), "utf-8"))
+    except FileNotFoundError:
+        root.update()
+        messagebox.showerror("Password Error",
+                             "Password Filename not found..")
+        return -1
+    root.update()
+    messagebox.showinfo("Password Saved Successfully",
+                        "Password placed in " + filename)
+
+
+# Get password to file
+def read_pwd():
+    try:
+        filename = askstring('Password Filename', 'What would you like to read password from?')
+        f = open(filename, 'rb')
+        root.update()
+        user_password_string.set(f.read().decode('utf-8'))
+        f.close()
+    # If filename specified by user but not found return error
+    except FileNotFoundError:
+        root.update()
+        messagebox.showerror("Password Error",
+                             "Password Filename not found..")
+        return -1
+    root.update()
+    messagebox.showinfo("Password Read Successfully",
+                        "Password retrieved from " + filename)
+
+
+# Get message to be encrypted, either from text box or file
 def get_message():
     # If user entered a message filename, use that, otherwise use textbox
     if len(userMessageFile.get()) > 0:
@@ -138,14 +186,10 @@ def get_message():
         return bytes(messageTxt.get("1.0", END), 'utf-8')
 
 
+# Change form to match settings of selected encryption type
 def encryption_selected(type_selected):
     v.set(type_selected)
-    if type_selected == 1 or type_selected == 6:
-        # Ensure public key entry and generation enabled
-        if userPrivKey["state"] == "normal":
-            userPublicKey.config(state='normal')
-        generate_pub_bttn.config(state='normal')
-
+    if type_selected == 1:
         # Change private key label and file name to RSA
         privKeylbl.config(text="Private Key Filename:")
         privKeyName.set("private_key.pem")
@@ -154,12 +198,10 @@ def encryption_selected(type_selected):
         gen_pub_bttn.set("Gen. Pub Key")
         new_keys.set("Reset Keys")
         curr_encryption.set("RSA")
+        password_string_lbl.set("Private password:")
         v.set(1)
-    else:
-        # Disable public key entry and generation
-        if userPrivKey["state"] == "normal":
-            userPublicKey.config(state='disabled')
-        generate_pub_bttn.config(state='disabled')
+        show_password()
+        show_pub_key()
 
     if type_selected == 2:
         # Change private key label and file name to Fernet
@@ -168,6 +210,8 @@ def encryption_selected(type_selected):
         new_keys.set("Gen Fernet Key")
         curr_encryption.set("Fernet")
         v.set(2)
+        hide_pub_key()
+        hide_password()
 
     if type_selected == 3:
         # Change private key label and file name to Fernet
@@ -175,7 +219,10 @@ def encryption_selected(type_selected):
         privKeyName.set("priv_fernet.key")
         new_keys.set("Gen Fernet Key")
         curr_encryption.set("Fernet with password")
+        password_string_lbl.set("Private password:")
         v.set(3)
+        hide_pub_key()
+        show_password()
 
     if type_selected == 4:
         # Change private key label and file name to Fernet
@@ -183,7 +230,10 @@ def encryption_selected(type_selected):
         privKeyName.set("aesgcm.key")
         new_keys.set("Gen AESGCM Key")
         curr_encryption.set("AESGCM")
+        password_string_lbl.set("Password or AAD:")
         v.set(4)
+        hide_pub_key()
+        show_password()
 
     if type_selected == 5:
         # Change private key label and file name to Fernet
@@ -191,7 +241,10 @@ def encryption_selected(type_selected):
         privKeyName.set("aesccm.key")
         new_keys.set("Gen AESCCM Key")
         curr_encryption.set("AESCCM")
+        password_string_lbl.set("Password or AAD:")
         v.set(5)
+        hide_pub_key()
+        show_password()
 
     if type_selected == 6:
         # Change private key label and file name to Fernet
@@ -202,11 +255,17 @@ def encryption_selected(type_selected):
         gen_pub_bttn.set("Gen. New IV")
         new_keys.set("Reset Keys")
         curr_encryption.set("AES")
+        password_string_lbl.set("Private password:")
         v.set(6)
+        show_password()
+        show_pub_key()
 
-    reset_keys()
+    if not os.path.isfile(userPrivKey.get()):
+        reset_keys()
+    save_filenames()
 
 
+# Enable entry of all text boxes
 def edit_filenames():
     if v.get() != 2:
         userPublicKey.config(state="normal")
@@ -216,6 +275,7 @@ def edit_filenames():
     userDecryptedName.config(state="normal")
 
 
+# Disable entry of all text boxes
 def save_filenames():
     userPrivKey.config(state="disabled")
     userPassword.config(state="disabled")
@@ -224,24 +284,60 @@ def save_filenames():
     userDecryptedName.config(state="disabled")
 
 
+# Delete all user files such as keys and data
 def delete_user_files():
-    directory = '.'
-    for filename in os.listdir(directory):
-        f = os.path.join(directory, filename)
-        # checking if it is a file
-        if os.path.isfile(f) and not f.endswith(".gitignore") and not f.endswith(".py"):
-            os.remove(f)
+    if messagebox.askokcancel("Quit", "Do you want to quit? All files and keys will be deleted if program exited..."):
+        directory = '.'
+        for filename in os.listdir(directory):
+            f = os.path.join(directory, filename)
+            # checking if it is a file
+            if os.path.isfile(f) and not f.endswith(".gitignore") and not f.endswith(".py"):
+                os.remove(f)
+        return 1
 
 
+# Show user current directory
 def open_current_dir():
     os.system("start .")
 
 
+# When application closed, show warning that all user files will be deleted
 def on_closing():
     root.update()
-    if messagebox.askokcancel("Quit", "Do you want to quit? All files and keys will be deleted if program exited..."):
+
+    result = delete_user_files()
+    if result == 1:
         root.destroy()
-        delete_user_files()
+
+
+# Disable password entry
+def hide_password():
+    root.update()
+    passwordLbl.place_forget()
+    userPassword.place_forget()
+
+
+# Disable public key entry and generation
+def hide_pub_key():
+    root.update()
+    pubKeyLbl.place_forget()
+    userPublicKey.place_forget()
+    generate_pub_bttn.place_forget()
+
+
+# Re-enable password entry
+def show_password():
+    root.update()
+    passwordLbl.place(x=265, y=300)
+    userPassword.place(x=235, y=320)
+
+
+# Re-enable public key entry and generation
+def show_pub_key():
+    root.update()
+    pubKeyLbl.place(x=250, y=250)
+    userPublicKey.place(x=235, y=270)
+    generate_pub_bttn.place(x=205, y=420)
 
 
 root = Tk()
@@ -258,13 +354,14 @@ v.set(1)
 
 menubar = Menu(root)
 filemenu = Menu(menubar, tearoff=0)
-filemenu.add_command(label="Open Current Directory", command=open_current_dir)
 filemenu.add_command(label="Delete Keys and Files", command=delete_user_files)
+filemenu.add_command(label="Open Current Directory", command=open_current_dir)
 menubar.add_cascade(label="File", menu=filemenu)
 
 editmenu = Menu(menubar, tearoff=0)
 editmenu.add_command(label="Edit Filenames", command=edit_filenames)
-editmenu.add_command(label="Save Filenames", command=save_filenames)
+editmenu.add_command(label="Read Password from File", command=read_pwd)
+editmenu.add_command(label="Save Password to File", command=save_pwd)
 menubar.add_cascade(label="Edit", menu=editmenu)
 
 asymmetricMenu = Menu(root, tearoff=False)
@@ -312,7 +409,11 @@ privKeyName.set("private_key.pem")
 userPrivKey.config(textvariable=privKeyName)
 userPrivKey.place(x=34, y=320)
 
-Label(root, text="Private Key password:").place(x=250, y=300)
+password_string_lbl = StringVar()
+password_string_lbl.set("Private password:")
+passwordLbl = Label(root, textvariable=password_string_lbl)
+
+passwordLbl.place(x=265, y=300)
 user_password_string = StringVar()
 user_password_string.set(get_pwd().decode('utf-8'))
 userPassword = Entry(root, width=20, textvariable=user_password_string)
@@ -331,7 +432,7 @@ userDecryptedName.place(x=235, y=370)
 gen_pub_bttn = StringVar()
 gen_pub_bttn.set("Gen Pub. Key")
 generate_pub_bttn = ttk.Button(root, textvariable=gen_pub_bttn,
-                               command=lambda: generate_first_key())
+                               command=lambda: generate_secondary_key())
 generate_pub_bttn.place(x=205, y=420)
 
 reset_keys_bttn = ttk.Button(root, command=lambda: reset_keys())
@@ -351,7 +452,6 @@ root.protocol("WM_DELETE_WINDOW", on_closing)
 
 root.config(menu=menubar)
 
-delete_user_files()
 save_filenames()
 reset_keys()
 

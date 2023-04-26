@@ -1,6 +1,8 @@
 from functions.imports import *
 
 
+# Generate fernet key and place into file
+# If fernet with password, create key with password
 def generate_fern_key(root, v, password, priv_key_filename):
     key = -1
 
@@ -33,6 +35,7 @@ def generate_fern_key(root, v, password, priv_key_filename):
                         "Fernet Key was generated and placed in " + priv_key_filename)
 
 
+# Encrypt message with Fernet then place encrypted message in file
 def encrypt_fernet(root, priv_key_filename, encrypted_name, message):
     fern = Fernet(get_fernet_key(root, priv_key_filename))
     encrypted = fern.encrypt(message)
@@ -54,6 +57,7 @@ def encrypt_fernet(root, priv_key_filename, encrypted_name, message):
                         "The message has been encrypted and placed in " + encrypted_name + " file!")
 
 
+# Decrypt message with Fernet then place decrypted message in file
 def decrypt_fernet(root, priv_key_filename, encrypted_name, decrypted_name):
     fern = Fernet(get_fernet_key(root, priv_key_filename))
 
@@ -101,6 +105,7 @@ def decrypt_fernet(root, priv_key_filename, encrypted_name, decrypted_name):
                         "The message has been decrypted and placed in " + decrypted_name + " file!")
 
 
+# Get fernet key from file
 def get_fernet_key(root, priv_key_filename):
     try:
         # Get fernet key from user specified file

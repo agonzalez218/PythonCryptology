@@ -1,6 +1,7 @@
 from functions.imports import *
 
 
+# Generate new RSA key pair and place into files
 def generate_rsa_key_pair(root, password, priv_key_filename, pub_key_filename):
     private_key = rsa.generate_private_key(
         public_exponent=65537,
@@ -38,6 +39,7 @@ def generate_rsa_key_pair(root, password, priv_key_filename, pub_key_filename):
     return 1
 
 
+# Decrypt RSA then write decrypted message to file
 def decrypt_rsa(root, private_key, encrypted_name, decrypted_name):
     # If private key not found, return error
     try:
@@ -81,6 +83,7 @@ def decrypt_rsa(root, private_key, encrypted_name, decrypted_name):
         return -1
 
 
+# Encrypt message with RSA then write encrypted message to file
 def encrypt_rsa(root, public_key, message, encrypted_name):
     try:
         if public_key == -1:
@@ -105,14 +108,17 @@ def encrypt_rsa(root, public_key, message, encrypted_name):
         root.update()
         messagebox.showerror("File Not Found",
                              "ERROR: Encrypted Filename not found in current directory...")
+        return -1
         # If encryption failed, return error
     except ValueError:
         root.update()
         messagebox.showerror("Encryption Error",
                              "Encryption of selected file FAILED, please ensure you are using correct keys and "
                              "message filename...")
+        return -1
 
 
+# Generate new RSA public key and place into file
 def generate_rsa_pub_key(root, priv_key, pub_key_filename):
     # Get private key, if not found return error
     if priv_key == -1:
@@ -135,6 +141,7 @@ def generate_rsa_pub_key(root, priv_key, pub_key_filename):
         return -1
 
 
+# Returns RSA public key from file
 def get_rsa_pub_key(root, pub_key_filename):
     # If user did not specify public key filename return error
     if len(pub_key_filename) < 1:
@@ -158,6 +165,7 @@ def get_rsa_pub_key(root, pub_key_filename):
         return -1
 
 
+# Returns RSA private key from file
 def get_rsa_priv_key(root, priv_key_filename, password):
     # If user did not specify private key filename return error
     if len(priv_key_filename) < 1:
