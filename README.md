@@ -1,4 +1,4 @@
-# PythonCryptology | May 2023
+# PythonCryptology | April 2023
 This project is a tool that gives a user access to multiple encryption methods. The user may enter a message, or link to a file with the message, then choose an encryption method. Once chosen, they simply set the parameters or accept the defaults and press encrypt. This will create an encrypted file from the message in the specified filename. The user may move it to another directory or decode it using the same parameters.
 
 ## Section Links
