@@ -9,7 +9,7 @@ This project is a tool that gives a user access to multiple encryption methods. 
 
 ## Main Menu
 This is the default Main Menu:<br/>
-![Menu](https://github.com/agonzalez218/PythonCryptology/assets/60588691/802fbd22-17fa-4423-8440-b9fb0f92315c)<br/>
+![MainMenu](https://github.com/agonzalez218/PythonCryptology/assets/60588691/676742c3-8230-4d47-9d33-f91df31df50b)<br/>
 
 The Menu at the top gives the following options:
 - File
@@ -45,7 +45,8 @@ The options at the bottom, below the message text box, are further explained in 
 
 ## Personalization
 The following image shows how the options provided to a user change based on the encryption method selected:<br/>
-![Fernet](https://github.com/agonzalez218/PythonCryptology/assets/60588691/7b5896ed-4e46-4b2c-b256-c17f50ded158)<br/>
+![FernetSelected](https://github.com/agonzalez218/PythonCryptology/assets/60588691/7157d5bd-42f4-43db-9584-a94f7ad51000)
+<br/>
 
 Not all encryption methods use two keys or a password. Thus, based on the method chosen, user input boxes will be shown or not.
 In addition, buttons shown at the bottom will also not be visible to prevent confusion or unusable buttons.
@@ -53,11 +54,13 @@ In addition, buttons shown at the bottom will also not be visible to prevent con
 ## Error Handling
 The following images are alert messages that help to guide the user through error handling<br/>
 The following image shows a successful encrption:<br/>
-![image](https://github.com/agonzalez218/PythonCryptology/assets/60588691/14150486-1afa-429b-bc5d-078cc20d7592)<br/>
+![EncryptionSucess](https://github.com/agonzalez218/PythonCryptology/assets/60588691/c3af2d8b-b53f-4a03-b5e0-50184363bedd)
+<br/>
 It will show the encryption method used, and the filename where the encrypted message was placed.<br/>
 
 The following image shows a successful decryption:<br/>
-![image](https://github.com/agonzalez218/PythonCryptology/assets/60588691/2737208f-4c04-4cf3-8571-466c72142404)<br/>
+![DecryptionSucess](https://github.com/agonzalez218/PythonCryptology/assets/60588691/2df3580d-4eb3-426c-891f-b3093d531e31)
+<br/>
 It will show the encryption method used, and the filename where the decrypted message was placed.<br/>
 
 There will also be alerts shown for errors that come along the way. The following list is possible errors that can occur and have alert messages to make the user aware of the failure.
@@ -68,7 +71,8 @@ There will also be alerts shown for errors that come along the way. The followin
 - Failed Decryption ( could be due to wrong encryption method or other reasons so is left vague )
 
 The final alert message that will be shown is below:<br/>
-![image](https://github.com/agonzalez218/PythonCryptology/assets/60588691/ca3c6955-490c-4a98-867f-253c837ddce2)<br/>
+![Quit](https://github.com/agonzalez218/PythonCryptology/assets/60588691/2bee9c22-83d3-429f-a966-bbf302b1078b)
+<br/>
 When the user exits the program, all files created by the user will be deleted. This prevents someone from re-using or accessing them in the next program usage. Deletion isn't fullproof and may be able to be recovered.
 
 
